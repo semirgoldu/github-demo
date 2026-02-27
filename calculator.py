@@ -19,6 +19,10 @@ def divide(a, b):
     return a / b
 
 
+def power(base, exponent):
+    return base ** exponent
+
+
 if __name__ == "__main__":
     print("Calculator Demo")
     print(f"5 + 3 = {add(5, 3)}")
