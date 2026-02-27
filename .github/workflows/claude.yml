@@ -1,0 +1,35 @@
+# Claude GitHub Actions workflow
+# Allows Claude to respond to @claude mentions in issues and PRs
+name: Claude
+
+on:
+  issue_comment:
+    types: [created]        # Trigger when someone comments on an issue/PR
+  issues:
+    types: [opened, assigned] # Trigger when an issue is opened or assigned to Claude
+  pull_request_review_comment:
+    types: [created]        # Trigger on PR review comments
+
+jobs:
+  claude:
+    # Only run if the comment mentions @claude
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'issues' && contains(github.event.issue.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Allow Claude to push code
+      pull-requests: write  # Allow Claude to open/update PRs
+      issues: write         # Allow Claude to comment on issues
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # Full history so Claude has context
+
+      - name: Run Claude
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
